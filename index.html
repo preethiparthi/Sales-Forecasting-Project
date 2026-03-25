@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Forecasting App</title>
+</head>
+<body>
+    <h1>📊 Sales Forecasting</h1>
+    <form action="/predict" method="post">
+        <label for="date">Select Date:</label>
+        <input type="date" id="date" name="date" required>
+        <br><br>
+        <input type="submit" value="Predict Sales">
+    </form>
+    {% if prediction %}
+        <h2>Predicted Sales: {{ prediction }}</h2>
+    {% endif %}
+</body>
+</html>
