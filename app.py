@@ -1,25 +1,40 @@
 from flask import Flask, render_template, request
-import pandas as pd
-import joblib
+import pickle
+import numpy as np
+import os
 
 app = Flask(__name__)
 
-# Load trained model
-model = joblib.load("sales_model.pkl")
+# Load the trained model
+model = pickle.load(open('model.pkl', 'rb'))
 
-@app.route('/', methods=['GET', 'POST'])
+# Home page
+@app.route('/')
 def home():
-    prediction = None
-    if request.method == 'POST':
-        date_str = request.form['date']
-        date = pd.to_datetime(date_str)
-        input_data = pd.DataFrame({
-            'year': [date.year],
-            'month': [date.month],
-            'day': [date.day]
-        })
-        prediction = model.predict(input_data)[0]
-    return render_template('index.html', prediction=prediction)
+    return render_template('index.html')
 
-if __name__ == '__main__':
-    app.run(host="0.0.0.0",port=10000)
+
+# Prediction route
+@app.route('/get', methods=['GET', 'POST'])
+def predict():
+    try:
+        if request.method == 'POST':
+            # Get values from form
+            features = [float(x) for x in request.form.values()]
+            
+            # Make prediction
+            prediction = model.predict([features])
+            
+            return render_template('index.html', prediction_text=f"Predicted Sales: {prediction[0]}")
+        
+        else:
+            return render_template('index.html')
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+# Run the app
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
